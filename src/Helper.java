@@ -3,13 +3,16 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.Math;
 
 public class Helper
 {
   public static void main(String[] args)
   {
-    String myLetters = "XNRAMIELVGUT";
+    String myLetters = "BTLJWIEHYOCV";
     String longest = "";
+    String mostUsedLetters = "";
+    int mostUsedLettersBitCount = 0;
     
     try
     {
@@ -29,6 +32,8 @@ public class Helper
       
       FileWriter writer = new FileWriter("output.txt");
       
+      int totalCount = 0;
+      
       //-----------------------------------------------------------------------------------------------------------------------
       // Begin reading from input line-by-line for checking
       //-----------------------------------------------------------------------------------------------------------------------
@@ -39,19 +44,23 @@ public class Helper
         int lastGroup = -1;
         int i = 0;
         int length = word.length();
+        int mask = 0;
         boolean valid = true;
         
         while (i < length && valid)
         {
-          int newGroup = myLetters.indexOf(word.charAt(i));
+          int index = myLetters.indexOf(word.charAt(i));
           
-          if (newGroup == -1) //index not found
+          if (index == -1) //index not found
           {
             valid = false;
           }
           else
           {
-            newGroup = newGroup / 3; // converting index to group value
+            int num = (int)Math.pow(2, index); //Getting the bit length item
+            mask |= num;
+            
+            int newGroup = index / 3; // converting index to group value
             
             if (newGroup == lastGroup) // curLetter in same group as lastLetter
             {
@@ -69,14 +78,23 @@ public class Helper
         if (valid)
         {
           System.out.println(word + " is valid.");
+          totalCount++;
           writer.write(word + "\n");
           
           if (word.length() > longest.length())
             longest = word;
+          
+          if (countBits(mask) > mostUsedLettersBitCount)
+          {
+            mostUsedLetters = word;
+            mostUsedLettersBitCount = countBits(mask);
+          }
         }
       }
       
       System.out.println(longest + " was the longest word.");
+      System.out.println(mostUsedLetters + " hit the most letters, with " + mostUsedLettersBitCount + " letters used.");
+      System.out.println(totalCount + " total valid words.");
       reader.close();
       writer.close();
     } 
@@ -92,5 +110,16 @@ public class Helper
     }
     
     System.out.println("Program halt.");
+  }
+  
+  private static int countBits(int n) 
+  {
+    int count = 0;
+    while (n != 0) 
+    {
+      count += n % 2;
+      n /= 2;
+    }
+    return count;
   }
 }
